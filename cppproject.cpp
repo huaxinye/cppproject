@@ -1,4 +1,3 @@
-// sever
 //sever
 #include<iostream>
 #include<sys/types.h>
