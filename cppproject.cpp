@@ -4,59 +4,54 @@
 #include<sys/socket.h>
 #include<string.h>
 #include<netinet/in.h>
+#include<arpa/inet.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<netdb.h>
 #define server_port 1111
 #define buffer_size 1024
+
 using namespace std;
 int main()
 {
-    struct sockaddr_in addr;// google SOCKADDR_IN struct
-    bzero(&addr,sizeof(addr));
-    addr.sin_family=AF_INET;
-    addr.sin_addr.s_addr = htons(INADDR_ANY);
-    addr.sin_port = htons(server_port);
-    int server_socket = socket(PF_INET,SOCK_STREAM,0);
-        if( server_socket < 0)
-        {
-            cout<<"Create Socket Failed!"<<"\n";
-        }
-        else
-        {
-            cout<<"Socket Created!"<<"\n";
-        }
-        return 0;
-}
-//111111111111111111111111111111111111111
-/*
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-int main(){
-    //创建套接字
-    int serv_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    //将套接字和IP、端口绑定
-    struct sockaddr_in serv_addr;
-    memset(&serv_addr, 0, sizeof(serv_addr));  //每个字节都用0填充
-    serv_addr.sin_family = AF_INET;  //使用IPv4地址
-    serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");  //具体的IP地址
-    serv_addr.sin_port = htons(1234);  //端口
-    bind(serv_sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
-    //进入监听状态，等待用户发起请求
-    listen(serv_sock, 20);
-    //接收客户端请求
-    struct sockaddr_in clnt_addr;
-    socklen_t clnt_addr_size = sizeof(clnt_addr);
-    int clnt_sock = accept(serv_sock, (struct sockaddr*)&clnt_addr, &clnt_addr_size);
-    //向客户端发送数据
-    char str[] = "Hello World!";
-    write(clnt_sock, str, sizeof(str));
-   
-    //关闭套接字
-    close(clnt_sock);
-    close(serv_sock);
+    int client;
+    int server;
+    bool isExit = false;
+    char buffer[buffer_size];
+
+    struct sockaddr_in server_addr;
+    socklen_t size;
+
+    client = socket(AF_INET, SOCK_STREAM, 0);
+    if (client<0)
+    {
+        cout << "establishing connection failed." <<"\n";
+        exit(1);
+    }
+    cout << "connection established." << "\n";
+
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_addr.s_addr = htons(INADDR_ANY);
+    server_addr.sin_port = htons(server_port);
+
+    if(bind(client, (struct sockaddr*)&server_addr, sizeof(server_addr))<0)
+    {
+        cout<< "binding socket failed."<<"\n";
+        exit(1);
+    }
+    size=sizeof(server_addr);
+    cout<< "searching for client..."<<"\n";
+
+    listen(client,1);
+
+    server = accept(client,(struct sockaddr*)&server_addr, &size);
+
+    if (server<0)
+    {
+        cout<<"error on accepting."<<"\n";
+        exit(1);
+    }
+
+
     return 0;
 }
-*/
