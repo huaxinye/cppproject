@@ -51,7 +51,54 @@ int main()
         cout<<"error on accepting."<<"\n";
         exit(1);
     }
+    while (server >0)
+    {
+        strcpy(buffer, "server connected...\n");
+        send(server,buffer,bufsize,0);
 
+        cout<<"client: ";
+
+        do
+        {
+            recv(server,buffer,bufsize,0);
+            cout<<buffer<<" ";
+            if(*buffer == '#')
+            {
+                *buffer='*';
+                isExit =true;
+            }
+        }
+        while(*buffer !='*');
+
+            do{
+                cout<<"\nserver: ";
+                do{
+                    cin>>buffer;
+                    send(server,buffer,bufsize,0);
+                    if(*buffer=='#')
+                    {
+                        send(server,buffer,bufsize,0);
+                        *buffer='*';
+                        isExit=true;
+                    }
+                }while(*buffer !='*');
+
+                cout<<"client: ";
+                do{
+                    recv(server, buffer, bufsize,0);
+                    cout<<buffer<<" ";
+                if (*buffer =='#')
+                {
+                    *buffer=='*';
+                    isExit=true;
+                }
+            }while(*buffer!='*');
+        }while(!isExit);
+        cout <<"connection terminated."<<endl;
+        isExit=false;
+        exit(1);
+    }
+close(client);
 
     return 0;
 }
