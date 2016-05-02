@@ -15,6 +15,7 @@ int main()
 {
     int client;
     int server;
+    int portNum = 1500;
     bool isExit = false;
     char buffer[bufsize];
     char *ip= "10.0.0.8";
@@ -28,6 +29,52 @@ int main()
         exit(1);
     }
     cout << "socket created" <<"\n";
+    
     server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = htons(INADDR_ANY);
-    server_addr.sin_port = htons(port);
+    server_addr.sin_port = htons(portNum);
+    
+    if (connect(client, (struct sockaddr*)&sever_addr, sizeof(server_addr)) == 0)
+    {
+       cout << "Connecting to server" << endl;
+    }
+    
+    recv(client, bufsize, bufsize, 0);
+    cout << "Connection comfirmed" << endl;
+    cout << "Enter # to end the connection" << endl;
+    
+    do{
+       cout << "Client: ";
+       do{
+          cin >> buffer;
+          send(client, buffer, bufsize, 0);
+          if(*buffer == '#')
+          {
+             send(client, buffer, bufsize, 0);
+             *buffer = '*';
+             isExit = true;
+          }
+        }while (*buffer != 42);
+        
+        cout << "Server: ";
+        
+        do{
+           recv(client, buffer, bufsize, 0);
+           cout << buffer <<" ";
+           if (*buffer == '#')
+           {
+              *buffer = '*';
+              isExit = true;
+            }
+        }while (*buffer != 42);
+        
+        cout << endl;
+    }while(!isExit);
+    
+    cout << "Connection terminated" << endl;
+    cout << "Goodbye" << endl;
+    
+    close(client);
+    
+    return 0;
+}
+        
