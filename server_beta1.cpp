@@ -1,23 +1,22 @@
-//it's sever
 #include<iostream>
+#include<string.h>
 #include<sys/types.h>
 #include<sys/socket.h>
-#include<string.h>
 #include<netinet/in.h>
 #include<arpa/inet.h>
 #include<stdlib.h>
 #include<unistd.h>
-#include<netdb.h>
-#define server_port 1111
-#define buffer_size 1024
-
+#define port 1500
+#define bufsize 1024
 using namespace std;
+
 int main()
 {
     int client;
     int server;
+    int length;
     bool isExit = false;
-    char buffer[buffer_size];
+    char buffer[bufsize];
 
     struct sockaddr_in server_addr;
     socklen_t size;
@@ -32,7 +31,7 @@ int main()
 
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = htons(INADDR_ANY);
-    server_addr.sin_port = htons(server_port);
+    server_addr.sin_port = htons(port);
 
     if(bind(client, (struct sockaddr*)&server_addr, sizeof(server_addr))<0)
     {
@@ -51,54 +50,36 @@ int main()
         cout<<"error on accepting."<<"\n";
         exit(1);
     }
+
     while (server >0)
     {
-        strcpy(buffer, "server connected...\n");
+        strcpy(buffer, "server connected...");
         send(server,buffer,bufsize,0);
 
+        do{
         cout<<"client: ";
-
-        do
+        length=recv(server,buffer,bufsize,0);
+        buffer[length]='\0';
+        cout<<buffer<<" ";
+        if(*buffer == '#')
         {
-            recv(server,buffer,bufsize,0);
-            cout<<buffer<<" ";
-            if(*buffer == '#')
-            {
-                *buffer='*';
-                isExit =true;
-            }
+             isExit =true;
+             goto endloop;
         }
-        while(*buffer !='*');
+        cout<<"\nserver: ";
+        cin>>buffer;
+        send(server,buffer,bufsize,0);
+        if(*buffer == '#')
+        {
+             isExit =true;
+        }
+        endloop:;
 
-            do{
-                cout<<"\nserver: ";
-                do{
-                    cin>>buffer;
-                    send(server,buffer,bufsize,0);
-                    if(*buffer=='#')
-                    {
-                        send(server,buffer,bufsize,0);
-                        *buffer='*';
-                        isExit=true;
-                    }
-                }while(*buffer !='*');
-
-                cout<<"client: ";
-                do{
-                    recv(server, buffer, bufsize,0);
-                    cout<<buffer<<" ";
-                if (*buffer =='#')
-                {
-                    *buffer=='*';
-                    isExit=true;
-                }
-            }while(*buffer!='*');
         }while(!isExit);
-        cout <<"connection terminated."<<endl;
+        cout <<"\nconnection terminated."<<endl;
         isExit=false;
         exit(1);
     }
 close(client);
-
-    return 0;
+return 0;
 }
