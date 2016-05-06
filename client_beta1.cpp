@@ -15,9 +15,9 @@ int main()
 {
     int client;
     int server;
+    int length;
     bool isExit = false;
     char buffer[bufsize];
-    char *ip= "10.0.0.8";
 
     struct sockaddr_in server_addr;
 
@@ -38,33 +38,35 @@ int main()
         cout <<"connecting failed"<<endl;
         exit(1);
     }
-    recv(client, buffer, bufsize,0);
-    cout<<"connected"<<endl;
+    length=recv(client, buffer, bufsize,0);
+    buffer[length]='\0';
+    cout<<buffer;
 
     do{
-        cout<<"client: ";
-        do{
-            cin>>buffer;
-            send(client, buffer, bufsize,0);
-            if(*buffer=='#')
+        cout<<"\nclient: ";
+
+        cin>>buffer;
+        send(client, buffer, bufsize,0);
+           if(*buffer=='#')
             {
-                *buffer='*';
+
                 isExit=true;
+                goto endloop;
+
             }
-        }while(*buffer !='*');
-        cout<<"server: ";
-        do{
-            recv(client,buffer,bufsize,0);
+           cout<<"server: ";
+            length=recv(client,buffer,bufsize,0);
+            buffer[length]='\0';
             cout<<buffer<<" ";
             if(*buffer=='#')
             {
-                *buffer='*';
                 isExit=true;
             }
-        }while(*buffer !='*');
-        cout<< endl;
+            endloop:;
+
     }while(!isExit);
-    cout<<"disconnected"<<endl;
+    isExit = false;
+    cout<<"\ndisconnected"<<endl;
     close(client);
     return 0;
 }
