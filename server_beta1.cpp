@@ -6,9 +6,55 @@
 #include<arpa/inet.h>
 #include<stdlib.h>
 #include<unistd.h>
+#include<thread>
+#include<ctime>
+#include<stdio.h>
+
 #define port 1500
 #define bufsize 1024
+
 using namespace std;
+
+void ptime(time_t lt)
+{
+
+    lt =time(NULL);
+    printf(ctime(&lt));
+}
+
+void Sendm(char buffers[bufsize],int client,int server,time_t lt)
+{
+    while(1){
+    cin>>buffers;
+    send(server,buffers,bufsize,0);
+    cout<<"server: "<<buffers<<"  --message sent by ";
+    ptime(lt);
+    cout<<'\n';
+    if(*buffers == '#')
+    {
+        cout <<"\nconnection terminated."<<endl;
+        close(client);
+                exit(1);
+    }}
+}
+
+
+void Recem(char bufferr[bufsize],int client,int server,time_t lt,int length)
+{
+
+    while(1){
+    length=recv(server,bufferr,bufsize,0);
+    bufferr[length]='\0';
+    cout<<"client: "<<bufferr<<"  --message sent by ";
+    ptime(lt);
+    cout<<'\n';
+    if(*bufferr == '#')
+    {
+        cout <<"\ndisconnected by client."<<endl;
+        close(client);
+        exit(1);
+    }}
+}
 
 int main()
 {
@@ -17,6 +63,11 @@ int main()
     int length;
     bool isExit = false;
     char buffer[bufsize];
+    char buffers[bufsize];
+    char bufferr[bufsize];
+
+    struct tm *ptr;
+    time_t lt;
 
     struct sockaddr_in server_addr;
     socklen_t size;
@@ -50,36 +101,22 @@ int main()
         cout<<"error on accepting."<<"\n";
         exit(1);
     }
-
     while (server >0)
     {
-        strcpy(buffer, "server connected...");
+        strcpy(buffer, "server connected...\n");
         send(server,buffer,bufsize,0);
-
-        do{
-        cout<<"client: ";
         length=recv(server,buffer,bufsize,0);
         buffer[length]='\0';
-        cout<<buffer<<" ";
-        if(*buffer == '#')
-        {
-             isExit =true;
-             goto endloop;
-        }
-        cout<<"\nserver: ";
-        cin>>buffer;
-        send(server,buffer,bufsize,0);
-        if(*buffer == '#')
-        {
-             isExit =true;
-        }
-        endloop:;
+        cout<<buffer<<endl;
+            std::thread t1(Sendm,buffers,client,server,lt);
+            std::thread t2(Recem,bufferr,client,server,lt,length);
+            t1.join();
+            t2.join();
+           /* Sendm(buffers,client,server,lt);
+            Recem(bufferr,client,server,lt,length);*/
 
-        }while(!isExit);
-        cout <<"\nconnection terminated."<<endl;
-        isExit=false;
-        exit(1);
     }
-close(client);
-return 0;
+
+    return 0;
 }
+
