@@ -9,13 +9,55 @@
 #include<thread>
 #include<ctime>
 #include<stdio.h>
-
-#define port 1500
+#define port 1501
 #define bufsize 1024
 #define FILE_NAME_MAX_SIZE 512
+#define BUFFER_SIZE 1024
+
 
 using namespace std;
+void filetransmission(int server_socket)
+{
 
+    char bufferfile[BUFFER_SIZE];
+    bzero(bufferfile, BUFFER_SIZE);
+    int length=recv(server_socket,bufferfile,BUFFER_SIZE,0);
+
+    char file_name[FILE_NAME_MAX_SIZE+1];
+    bzero(file_name, FILE_NAME_MAX_SIZE+1);
+    strncpy(file_name, bufferfile, strlen(bufferfile)>FILE_NAME_MAX_SIZE?FILE_NAME_MAX_SIZE:strlen(bufferfile));
+//        int fp = open(file_name, O_RDONLY);
+//        if( fp < 0 )
+    printf("%s\n",file_name);
+    FILE * fp = fopen(file_name,"r");
+    if(NULL == fp )
+    {
+        printf("File:\t%s Not Found\n", file_name);
+    }
+    else
+    {
+        bzero(bufferfile, BUFFER_SIZE);
+        int file_block_length = 0;
+//        while( (file_block_length = read(fp,buffer,BUFFER_SIZE))>0)
+        while( (file_block_length = fread(bufferfile,sizeof(char),BUFFER_SIZE,fp))>0)
+        {
+            printf("file_block_length = %d\n",file_block_length);
+                //发送buffer中的字符串到new_server_socket,实际是给客户端
+            if(send(server_socket,bufferfile,file_block_length,0)<0)
+            {
+                printf("Send File:\t%s Failed\n", file_name);
+
+            }
+            bzero(bufferfile, BUFFER_SIZE);
+        }
+//            close(fp);
+        fclose(fp);
+        printf("File:\t%s Transfer Finished\n",file_name);
+    }
+        //关闭与客户端的连接
+    close(server_socket);
+
+}
 void ptime(time_t lt)
 {
 
@@ -51,12 +93,15 @@ void Recem(char bufferr[bufsize],int client,int server,time_t lt,int length)
     cout<<"client: "<<bufferr<<"  --message sent by ";
     ptime(lt);
     cout<<'\n';
-    if(*bufferr == '#')
+    if(*bufferr == '*')
     {
         cout <<"\ndisconnected by client."<<endl;
         close(client);
         exit(1);
-    }}
+    }
+    if(*bufferr == '#')
+    { filetransmission(client);}
+    }
 }
 
 int main()
