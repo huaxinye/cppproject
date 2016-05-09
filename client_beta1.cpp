@@ -106,7 +106,7 @@ int main()
     int client;
     int server;
     int length;
-
+    
     char buffer[bufsize];
     char buffers[bufsize];
     char bufferr[bufsize];
@@ -138,6 +138,16 @@ int main()
     cout<<buffer;
     strcpy(buffer, "client connected...\n");
     send(client,buffer,bufsize,0);
+     
+    char name;
+    char sendData[40] = {0};
+    int nameLen = strlen(name);
+    cout<<"please input your user name"<<endl；
+    cin>>name;
+    buffer=name;
+    strncpy(sendData, name, nameLen);
+    strncpy(sendData+nameLen);
+    send(socket, sendData, nameLen, 0)；
         std::thread t1(Sendm,buffers,client,server,lt);
         std::thread t2(Recem,bufferr,client,server,lt,length);
         t1.join();
