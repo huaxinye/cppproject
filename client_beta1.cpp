@@ -101,12 +101,13 @@ int main()
         t2.join();
         /*Sendm(buffers,client,server,lt);
         Recem(bufferr,client,server,lt,length);*/
-    
-    
-    
-    
-    
-    
+    return 0;
+}
+
+
+
+void filetransimisson()
+{
     char file_name[FILE_NAME_MAX_SIZE+1];  
     bzero(file_name, FILE_NAME_MAX_SIZE+1);  
     printf("Please Input File Name On Server:\t");  
@@ -150,11 +151,6 @@ int main()
     }  
     printf("Recieve File:\t %s From Server[%s] Finished\n",file_name, argv[1]);  
       
-    fclose(fp);  
-    //关闭socket  
-    close(client);  
-    
-
-
+    fclose(fp);
     return 0;
 }
