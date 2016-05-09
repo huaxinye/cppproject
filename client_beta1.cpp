@@ -13,6 +13,7 @@
 
 #define port 1500
 #define bufsize 1024
+#define FILE_NAME_MAX_SIZE 512  
 
 using namespace std;
 
@@ -98,7 +99,59 @@ int main()
         t2.join();
         /*Sendm(buffers,client,server,lt);
         Recem(bufferr,client,server,lt,length);*/
-
+    
+    
+    
+    
+    
+    
+    char file_name[FILE_NAME_MAX_SIZE+1];  
+    bzero(file_name, FILE_NAME_MAX_SIZE+1);  
+    printf("Please Input File Name On Server:\t");  
+    scanf("%s", file_name);  
+      
+    char bufferfile[BUFFER_SIZE];  
+    bzero(bufferfile,BUFFER_SIZE);  
+    strncpy(bufferfile, file_name, strlen(file_name)>BUFFER_SIZE?BUFFER_SIZE:strlen(file_name));  
+    //向服务器发送buffer中的数据  
+    send(client,bufferfile,BUFFER_SIZE,0);  
+  
+//    int fp = open(file_name, O_WRONLY|O_CREAT);  
+//    if( fp < 0 )  
+    FILE * fp = fopen(file_name,"w");  
+    if(NULL == fp )  
+    {  
+        printf("File:\t%s Can Not Open To Write\n", file_name);  
+        exit(1);  
+    }  
+      
+    //从服务器接收数据到buffer中  
+    bzero(bufferfile,BUFFER_SIZE);  
+    int length = 0;  
+    while( 0!= (length = recv(client,bufferfile,BUFFER_SIZE,0)))  
+    {  
+        printf("recv return %d\n",length);  
+        if(length < 0)  
+        {  
+            printf("Recieve Data From Server %s Failed!\n", argv[1]);  
+            break;  
+        }  
+//        int write_length = write(fp, bufferfile,length);  
+                  
+        int write_length = fwrite(bufferfile,sizeof(char),length,fp);  
+        if (write_length<length)  
+        {  
+            printf("File:\t%s Write Failed\n", file_name);  
+            break;  
+        }  
+        bzero(bufferfile,BUFFER_SIZE);      
+    }  
+    printf("Recieve File:\t %s From Server[%s] Finished\n",file_name, argv[1]);  
+      
+    fclose(fp);  
+    //关闭socket  
+    close(client);  
+    
 
 
     return 0;
