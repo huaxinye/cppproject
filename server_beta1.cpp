@@ -42,13 +42,13 @@ void Sendm(char buffers[bufsize],int client,int server,time_t lt)
 }
 
 
-void Recem(char bufferr[bufsize],int client,int server,time_t lt,int length)
+void Recem(char user_name[length],char bufferr[bufsize],int client,int server,time_t lt,int length)
 {
 
     while(1){
     length=recv(server,bufferr,bufsize,0);
     bufferr[length]='\0';
-    cout<<"client: "<<bufferr<<"  --message sent by ";
+    cout<<"user_name: "<<bufferr<<"  --message sent by ";
     ptime(lt);
     cout<<'\n';
     if(*bufferr == '#')
@@ -111,6 +111,13 @@ int main()
         length=recv(server,buffer,bufsize,0);
         buffer[length]='\0';
         cout<<buffer<<endl;
+        
+        
+        length=recv(server,buffer,bufsize,0);
+        buffer[length]='\0';
+        char user_name[length+1];
+        strcpy(user_name,buffer);
+        str;
             std::thread t1(Sendm,buffers,client,server,lt);
             std::thread t2(Recem,bufferr,client,server,lt,length);
             t1.join();
