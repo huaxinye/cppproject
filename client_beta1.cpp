@@ -26,8 +26,12 @@ void ptime(time_t lt)
 void Sendm(char buffers[bufsize],int client,int server,time_t lt)
 {
     while(1){
+<<<<<<< HEAD
     cin.getline(buffers,bufsize+);
 
+=======
+    cin.getline(buffers,bufsize);
+>>>>>>> 91479085e37c6b85b96a4bfe902fa40bb51faa36
     send(client,buffers,bufsize,0);
     cout<<"client: "<<buffers<<"  --message sent by ";
     ptime(lt);
